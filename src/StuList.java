@@ -24,23 +24,17 @@ public class StuList extends JFrame implements ActionListener{
 	JScrollPane jsp;
 	
 	JTable jta = null;
-	
-	Vector rowdata,columnnames;
 	JTable jt = null;
-	//JScrollPane jsp = null;
-	
-	//
-	PreparedStatement ps=null;
-	Connection ct = null;
-	ResultSet rs=null;
 	
 	
-	public  static void main(String[] args) throws SQLException {
-		new StuList();
+	
+	
+	public  static void main(String[] args){
+		StuList sl=new StuList();
 		
 	}
 	
-	public StuList() throws SQLException {
+	public StuList(){
 		
 		jp1=new JPanel();
 		jtf=new JTextField(10);
@@ -58,51 +52,21 @@ public class StuList extends JFrame implements ActionListener{
 		jp2.add(jb2);
 		jp2.add(jb3);
 		jp2.add(jb4);
-		
-
-		
-		columnnames=new Vector();
-		//设置列名
-		columnnames.add("学号");
-		columnnames.add("姓名");
-		
-		rowdata=new Vector();
-		
-		
-		//1、加载驱动
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			ct=DriverManager.getConnection("jdbc:mysql://localhost:3306/studentsystem", "root", "123456");
-			ps=ct.prepareStatement("select * from stu");
-			rs=ps.executeQuery();
-			while(rs.next())
-			{
-				Vector hang = new Vector();
-				hang.add(rs.getString(1));
-				hang.add(rs.getString(2));
-				rowdata.add(hang);
-			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally {
-			try {
-				if(rs!=null) rs.close();
-				if(ps!=null) ps.close();
-				if(ct!=null) ct.close();
 				
-			} catch (Exception e2) {
-				// TODO: handle exception
-			}
-		}
-		
-		
 		this.add(jp1,"North");
 		this.add(jp2,"South");
 		
+		//创建一个数据模型对象
+		StuModel sm=new StuModel();
+		//System.out.println(sm.getColumnCount());
+		System.out.println(sm.getColumnName(1));
+		//初始化JTable
+		jt=new JTable(sm);
 		
-		jt=new JTable(rowdata,columnnames);
+		//jt=new JTable(rowdata,columnnames);
 		jsp=new JScrollPane(jt);
+		//jsp=new JScrollPane();
+		
 		
 		this.add(jsp);
 		this.setSize(400,300);
@@ -116,7 +80,18 @@ public class StuList extends JFrame implements ActionListener{
 		// TODO Auto-generated method stub
 		if(e.getSource()==jb1)
 		{
-			System.out.println("hello");
+			
+			//因为吧对表的数据封装到model中，可以比较简单完成查询
+			String name=this.jtf.getText().trim();
+			//System.out.println(name);
+			String sql= "select * from stu where stuname='"+name+"'";
+			//System.out.println(sql);
+			//构造新的数据模型类，并更新
+			StuModel sm=new StuModel(sql);;
+
+			//更新JTable
+			jt.setModel(sm);
+			//System.out.println("hello");
 		}
 	}
 
